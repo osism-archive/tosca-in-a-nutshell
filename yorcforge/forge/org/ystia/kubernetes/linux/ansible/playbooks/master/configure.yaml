@@ -1,0 +1,117 @@
+#
+# Ystia Forge
+# Copyright (C) 2018 Bull S. A. S. - Bull, Rue Jean Jaures, B.P.68, 78340, Les Clayes-sous-Bois, France.
+# Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
+#
+
+- name: Configure Cluster
+  hosts: all
+  strategy: linear
+  become: true
+  vars:
+    NO_PROXY: ""
+    no_proxy: ""
+    control_plane_endpoint: ""
+  tasks:
+
+    - name: Set control plane url to public ip
+      set_fact:
+        control_plane_endpoint: "{{LB_IP}}:{{LB_PORT}}"
+      when: LB_IP|default("") != ""
+
+    - name: Set node name
+      set_fact:
+        node_name: "{{ansible_hostname}}"
+
+    - name: Set default POD CIDR
+      set_fact:
+        POD_CIDR: "10.233.64.0/18"
+
+    - name: Set POD CIDR for Calico
+      set_fact:
+        POD_CIDR: "192.168.0.0/16"
+      when: pod_network == "calico"
+
+    - name: Set POD CIDR for Flanel
+      set_fact:
+        POD_CIDR: "10.244.0.0/16"
+      when: pod_network == "flanel"
+
+    - name: Set POD CIDR for Cilium
+      set_fact:
+        POD_CIDR: "10.217.0.0/16"
+      when: pod_network == "cilium"
+
+    - name: presetup no_proxy
+      set_fact:
+        no_proxy: "{{ansible_env['no_proxy']}}"
+      when: ansible_env['no_proxy'] is defined
+
+    - name: presetup NO_PROXY
+      set_fact:
+        NO_PROXY: "{{ansible_env['NO_PROXY']}}"
+      when: ansible_env['NO_PROXY'] is defined
+
+    - name: setup no_proxy
+      set_fact:
+        NO_PROXY: "{{POD_CIDR}},{% for host in ansible_play_hosts %}{{ hostvars[host]['ansible_hostname'] }},{{ hostvars[host]['ansible_fqdn'] }},{{ hostvars[host]['PRIVATE_IP'] }},{{ hostvars[host]['PUBLIC_IP'] }},{% endfor %}{{NO_PROXY}}"
+        no_proxy: "{{POD_CIDR}},{% for host in ansible_play_hosts %}{{ hostvars[host]['ansible_hostname'] }},{{ hostvars[host]['ansible_fqdn'] }},{{ hostvars[host]['PRIVATE_IP'] }},{{ hostvars[host]['PUBLIC_IP'] }},{% endfor %}{{no_proxy}}"
+
+    - name: set POD CIDR no proxy
+      blockinfile:
+        path: /etc/profile.d/ZZZ_kube_pod_cidr_http_noproxy.sh
+        create: yes
+        block: |
+          export NO_PROXY="{{POD_CIDR}},${NO_PROXY}"
+          export no_proxy="{{POD_CIDR}},${no_proxy}"
+
+    - name: Create config directory
+      file:
+        path: "/root/.kube"
+        state: directory
+        owner: root
+        group: root
+        mode: "u=rwx,g=rx,o=rx"
+
+    - name: Include primary master tasks
+      include_tasks: init_primary_master_tasks.yaml
+      when: inventory_hostname == ansible_play_hosts[0]
+
+    - name: Syncho
+      debug:
+          msg: "Done configuring primary master"
+
+    - name: Set Certs Key fact
+      set_fact:
+        CERTS_KEY: "{{ hostvars[ansible_play_hosts[0]]['CERTS_KEY'] }}"
+
+    - name: Expose bootstrap token
+      set_fact:
+        ADMIN_TOKEN: "{{ hostvars[ansible_play_hosts[0]]['ADMIN_TOKEN']  }}"
+
+    - name: Expose discovery-token-ca-cert-hash
+      set_fact:
+        CA_CERT_HASH: "{{ hostvars[ansible_play_hosts[0]]['CA_CERT_HASH'] }}"
+
+    - name: Include extra masters tasks
+      include_tasks: init_extra_master_tasks.yaml
+      when: inventory_hostname != ansible_play_hosts[0]
+
+    - name: Syncho
+      debug:
+          msg: "Done configuring extra masters"
+
+    - name: Set private API URL fact
+      set_fact:
+        API_URL: "https://{{PRIVATE_IP}}:{{API_SERVER_PORT}}"
+
+    - name: Set public API URL fact
+      set_fact:
+        API_URL: "https://{{PUBLIC_IP}}:{{API_SERVER_PORT}}"
+      # Below when construct is a shorthand for PUBLIC_IP is defined and not empty
+      when: PUBLIC_IP|default("") != ""
+
+    - name: Set private API URL fact
+      set_fact:
+        API_URL: "https://{{control_plane_endpoint}}"
+      when: control_plane_endpoint != ""

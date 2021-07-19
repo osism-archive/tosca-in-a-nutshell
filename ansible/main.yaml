@@ -1,0 +1,25 @@
+- name: prepare yorc host
+  hosts: yorc
+  vars:
+    consul_version: 1.10.0
+    terraform_version: 1.0.2
+  pre_tasks:
+    - name: install required packages
+      ansible.builtin.apt:
+        update_cache: true
+        name:
+          - docker.io
+          - docker-compose
+      become: true
+
+    - name: add ansible user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: true
+      become: true
+
+    - name: copy docker-compose directory
+      ansible.posix.synchronize:
+        src: "../docker-compose"
+        dest: "~/."

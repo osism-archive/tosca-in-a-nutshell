@@ -1,0 +1,109 @@
+ansible:
+  version: 2.10.0
+  extra_package_repository_url: ""
+  host_operations_allowed: false
+alien4cloud:
+  download_url: https://www.portaildulibre.fr/nexus/repository/opensource-releases/alien4cloud/alien4cloud-premium-dist/3.0.0-M8/alien4cloud-premium-dist-3.0.0-M8-dist.tar.gz
+  port: 8088
+  protocol: https
+  user: admin
+  password: admin
+  extra_env: ""
+yorcplugin:
+  download_url: ""
+consul:
+  download_url: https://releases.hashicorp.com/consul/1.2.3/consul_1.2.3_linux_amd64.zip
+  port: 8543
+  tls_enabled: true
+  tls_for_checks_enabled: true
+  encrypt_key: foobar
+terraform:
+  download_url: https://releases.hashicorp.com/terraform/0.11.8/terraform_0.11.8_linux_amd64.zip
+  plugins_download_urls:
+  - https://releases.hashicorp.com/terraform-provider-null/1.0.0/terraform-provider-null_1.0.0_linux_amd64.zip
+  - https://releases.hashicorp.com/terraform-provider-consul/2.1.0/terraform-provider-consul_2.1.0_linux_amd64.zip
+  - https://releases.hashicorp.com/terraform-provider-google/1.18.0/terraform-provider-google_1.18.0_linux_amd64.zip
+  - https://releases.hashicorp.com/terraform-provider-openstack/1.32.0/terraform-provider-openstack_1.32.0_linux_amd64.zip
+  - https://releases.hashicorp.com/terraform-provider-aws/1.36.0/terraform-provider-aws_1.36.0_linux_amd64.zip
+yorc:
+  download_url: https://github.com/ystia/yorc/releases/download/v4.1.2/yorc-4.1.2.tgz
+  port: 8800
+  protocol: https
+  private_key_content: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    foobar
+    -----END OPENSSH PRIVATE KEY-----
+  private_key_file: /home/ubuntu/.ssh/id_rsa
+  ca_pem: |
+    -----BEGIN CERTIFICATE-----
+    foobar
+    -----END CERTIFICATE-----
+  ca_pem_file: /home/ubuntu/work/bootstrapResources/ca.pem
+  ca_key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    Proc-Type: 4,ENCRYPTED
+    DEK-Info: AES-256-CBC,DF4BB5B3CDD295CB647696A1114FF763
+
+    foobar
+    -----END RSA PRIVATE KEY-----
+  ca_key_file: /home/ubuntu/work/bootstrapResources/ca-key.pem
+  ca_passphrase: yorc
+  data_dir: /var/yorc
+  workers_number: 30
+  resources_prefix: yorc-
+locations:
+- name: otc
+  type: openstack
+  properties:
+    auth_url: https://iam.eu-de.otc.t-systems.com:443/v3
+    default_security_groups:
+    - yorc-all
+    password: foobar
+    private_network_name: yorc-Subnet
+    project_name: eu-de
+    provisioning_over_fip_allowed: true
+    tenant_name: eu-de
+    project_id: foobar
+    project_domain_id: foobar
+    use_vault: true
+    domain_name: foobar
+    user_name: foobar
+compute:
+  availability_zone: eu-de-01
+  flavorName: s3.large.1
+  imageName: Standard_Ubuntu_20.04_latest
+  key_pair: yorc
+  region: eu-de
+  security_groups: yorc-all
+credentials:
+  user: ubuntu
+  keys:
+    "0": /home/ubuntu/.ssh/id_rsa
+address:
+  floating_network_name: admin_external_net
+jdk:
+  download_url: https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=linux&arch=x64&release=jdk8u212-b03&type=jdk
+  version: 1.8.0-212-b03
+location:
+  type: OpenStack
+  name: otc
+  resourcesfile: resources/ondemand_resources_openstack.yaml
+  properties:
+    auth_url: https://iam.eu-de.otc.t-systems.com:443/v3
+    default_security_groups:
+    - yorc-all
+    password: foobar
+    private_network_name: yorc-Subnet
+    project_name: eu-de
+    project_id: foobar
+    project_domain_id: foobar
+    provisioning_over_fip_allowed: true
+    tenant_name: eu-de
+    use_vault: true
+    domain_name: foobar
+    user_name: foobar
+hosts: []
+vault:
+  download_url: https://releases.hashicorp.com/vault/1.0.3/vault_1.0.3_linux_amd64.zip
+  port: 8200
+insecure: false

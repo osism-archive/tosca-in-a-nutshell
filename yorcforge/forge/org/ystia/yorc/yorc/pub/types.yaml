@@ -1,0 +1,363 @@
+tosca_definitions_version: alien_dsl_2_0_0
+#
+# Copyright 2018 Bull S.A.S. Atos Technologies - Bull, Rue Jean Jaures, B.P.68, 78340, Les Clayes-sous-Bois, France.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+metadata:
+  template_name: org.ystia.yorc.pub
+  template_version: 3.0.0-SNAPSHOT
+  template_author: yorc
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.vault.pub:3.0.0-SNAPSHOT
+  - org.ystia.yorc.experimental.consul.pub:3.0.0-SNAPSHOT
+  - org.ystia.ansible.pub:3.0.0-SNAPSHOT
+  - org.ystia.terraform.pub:3.0.0-SNAPSHOT
+
+data_types:
+  org.ystia.yorc.datatypes.ansible.inventory.Section:
+    derived_from: tosca.datatypes.Root
+    properties:
+      header:
+        type: string
+        required: true
+        description: "Ansible inventory section header"
+      variables:
+        type: list
+        description: "List of variables to add to Ansible inventory section"
+        entry_schema:
+          type: string
+        required: false
+node_types:
+  org.ystia.yorc.pub.location.LocationConfig:
+    derived_from: tosca.nodes.Root
+    description: |
+      Location configuration configuration for Yorc
+    abstract: true
+    properties:
+      location_name:
+        description: "Location name"
+        type: string
+        required: true
+  org.ystia.yorc.pub.location.GoogleConfig:
+    derived_from: org.ystia.yorc.pub.location.LocationConfig
+    description: |
+      Google Compute Engine location configuration for Yorc
+    abstract: true
+    properties:
+      project:
+        description: "Google Cloud project"
+        type: string
+        required: true
+      region:
+        description: "Google Compute Engine region"
+        type: string
+        required: false
+      application_credentials:
+        description: "Path to file containing service account private keys in JSON format"
+        type: string
+        required: false
+      credentials:
+        description: "Content of file containing service account private keys"
+        type: string
+        required: false
+      use_vault:
+        description: "Use vault to reference secrets in configuration"
+        type: boolean
+        default: true
+    requirements:
+    - host:
+        capability: org.ystia.yorc.pub.capabilities.YorcConfigContainer
+        relationship: org.ystia.yorc.pub.relationships.YorcConfigHostedOnYorc
+        occurrences: [ 1, 1 ]
+  org.ystia.yorc.pub.location.OpenStackConfig:
+    derived_from: org.ystia.yorc.pub.location.LocationConfig
+    description: |
+      Openstack locations configuration for Yorc
+    abstract: true
+    properties:
+      auth_url:
+        description: "Authentication url for OpenStack (should be the Keystone endpoint ie: http://your-openstack:5000/v2.0)"
+        type: string
+        required: true
+      tenant_name:
+        description: "OpenStack tenant name (Identity v2)"
+        type: string
+        required: false
+      project_name:
+        description: "OpenStack project name (Identity v3)"
+        type: string
+        required: false
+      project_id:
+        description: "OpenStack project ID (Identity v3)"
+        type: string
+        required: false
+      user_domain_name:
+        description: "OpenStack domain name where the user is located (Identity v3)"
+        type: string
+        required: false
+      user_name:
+        description: "OpenStack user name"
+        type: string
+        required: true
+      password:
+        description: "OpenStack password"
+        type: string
+        required: true
+      provisioning_over_fip_allowed:
+        type: boolean
+        description: This allows to perform the provisioning of a Compute over the associated floating IP if it exists.
+        required: false
+        default: false
+      private_network_name:
+        description: "Name of private network to use as primary administration network between Yorc and Compute instances. It should be a private network accessible by this instance of Yorc."
+        type: string
+      default_security_groups:
+        description: "Default security groups to be used when creating a Compute instance"
+        type: list
+        required: false
+        entry_schema:
+          type: string
+      use_vault:
+        description: "Use vault to reference secrets in configuration"
+        type: boolean
+        default: true
+    requirements:
+    - host:
+        capability: org.ystia.yorc.pub.capabilities.YorcConfigContainer
+        relationship: org.ystia.yorc.pub.relationships.YorcConfigHostedOnYorc
+        occurrences: [ 1, 1 ]
+    - vault:
+        capability: org.alien4cloud.vault.pub.capabilities.VaultServer
+        relationship: org.ystia.yorc.pub.relationships.SaveSecretsToVault
+        occurrences: [ 0, 1 ]
+
+  org.ystia.yorc.pub.location.AWSConfig:
+    derived_from: org.ystia.yorc.pub.location.LocationConfig
+    description: |
+      AWS location configuration for Yorc
+    abstract: true
+    properties:
+      access_key:
+        description: "AWS access key credentials"
+        type: string
+        required: true
+      secret_key:
+        description: "AWS secret key credentials"
+        type: string
+        required: true
+      region:
+        description: "AWS region"
+        type: string
+        required: true
+      use_vault:
+        description: "Use vault to reference secrets in configuration"
+        type: boolean
+        default: true
+    requirements:
+    - host:
+        capability: org.ystia.yorc.pub.capabilities.YorcConfigContainer
+        relationship: org.ystia.yorc.pub.relationships.YorcConfigHostedOnYorc
+        occurrences: [ 1, 1 ]
+
+  org.ystia.yorc.pub.location.KubernetesConfig:
+    derived_from: org.ystia.yorc.pub.location.LocationConfig
+    description: |
+      Kubernetes location configuration for Yorc
+    abstract: true
+    properties:
+      master_url:
+        description: "URL of the HTTP API of Kubernetes is exposed. Format: https://<host>:<port>"
+        type: string
+        required: true
+      ca:
+        description: "Trusted root certificates for server"
+        type: string
+      cert:
+        description: "The TLS client certificate used for authentication"
+        type: string
+      key:
+        description: "The TLS client key used for authentication"
+        type: string
+      insecure:
+        description: "Server should be accessed without verifying the TLS certificate (testing only)"
+        type: boolean
+        default: false
+    requirements:
+    - host:
+        capability: org.ystia.yorc.pub.capabilities.YorcConfigContainer
+        relationship: org.ystia.yorc.pub.relationships.YorcConfigHostedOnYorc
+        occurrences: [ 1, 1 ]
+
+  org.ystia.yorc.pub.location.HostsPoolConfig:
+    derived_from: org.ystia.yorc.pub.location.LocationConfig
+    description: |
+      Hosts Pool location configuration for Yorc
+    abstract: true
+    properties:
+      hosts:
+        type: string
+        description: "Yaml description of Hosts in the Pool"
+      use_vault:
+        description: "Use vault to reference secrets in configuration"
+        type: boolean
+        default: true
+    requirements:
+      - yorc:
+          capability: org.ystia.yorc.pub.capabilities.YorcConfigContainer
+          relationship: org.ystia.yorc.pub.relationships.YorcConfigHostedOnYorc
+
+  org.ystia.yorc.pub.ansible.Config:
+    derived_from: tosca.nodes.Root
+    description: |
+      Ansible configuration for Yorc
+    abstract: true
+    properties:
+      use_openssh:
+        description: "Use OpenSSH instead of Paramiko"
+        type: boolean
+        default: false
+      inventory:
+        description: "Variables to add to Ansible inventory"
+        type: list
+        entry_schema:
+          type: org.ystia.yorc.datatypes.ansible.inventory.Section
+        required: false
+      host_operations_allowed:
+        type: boolean
+        description: "Allow to execute operations on orchestrator host"
+        default: false
+    requirements:
+      - host:
+          capability: org.ystia.yorc.pub.capabilities.YorcConfigContainer
+          relationship: org.ystia.yorc.pub.relationships.YorcConfigHostedOnYorc
+          occurrences: [ 1, 1 ]
+
+  org.ystia.yorc.pub.nodes.YorcServer:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: "yorcicon.png"
+    abstract: true
+    properties:
+      download_url:
+        description: The URL used to download the Yorc archive.
+        type: string
+        required: true
+        default: https://dl.bintray.com/ystia/yorc-engine/releases/yorc-3.1.0.tgz
+      install_dir:
+        description: Installation directory for the Yorc binary
+        type: string
+        required: true
+        default: /usr/local/bin
+      config_dir:
+        description: Path to the configuration directory of Yorc
+        type: string
+        required: true
+        default: /etc/yorc
+      data_dir:
+        description: Yorc home dir
+        type: string
+        required: true
+        default: /var/yorc
+      resources_prefix:
+        type: string
+        description: "Prefix used to create resources (like Computes and so on)"
+        default: "yorc-"
+      private_key_content:
+        description: "Content of the default ssh private key used to connect on computes. Stored as ~/.ssh/yorc.pem"
+        type: string
+      ca_pem:
+        description: "PEM-encoded certificate authority content, used to check the authenticity of client and server connections"
+        type: string
+        required: false
+      ca_key:
+        description: "Certificate authority private key content"
+        type: string
+        required: false
+      ca_passphrase:
+        description: "Certificate authority private key passphrase"
+        type: string
+        required: false
+
+    requirements:
+    - consul:
+        capability: org.alien4cloud.consul.pub.capabilities.ConsulAgent
+        relationship: org.ystia.yorc.pub.relationships.JoinConsulAgent
+        occurrences: [ 1, 1 ]
+    - vault:
+        capability: org.alien4cloud.vault.pub.capabilities.VaultServer
+        relationship: org.ystia.yorc.pub.relationships.ConnectsToVaultServer
+        occurrences: [ 0, 1 ]
+    - ansible:
+        capability: tosca.capabilities.Node
+        relationship: org.ystia.ansible.pub.relationships.DependsOnAnsibleRuntime
+        occurrences: [ 1, 1 ]
+    - terraform:
+        capability: tosca.capabilities.Node
+        relationship: org.ystia.terraform.pub.relationships.DependsOnTerraformRuntime
+        occurrences: [ 1, 1 ]
+    - work_directory:
+        capability: tosca.capabilities.Node
+        relationship: org.ystia.yorc.pub.relationships.DependsOnFilessystem
+        occurrences: [0,1]
+    capabilities:
+      rest:
+        type: org.ystia.yorc.pub.capabilities.YorcRestAPI
+      config:
+        type: org.ystia.yorc.pub.capabilities.YorcConfigContainer
+
+capability_types:
+  org.ystia.yorc.pub.capabilities.YorcRestAPI:
+    derived_from: tosca.capabilities.Endpoint
+    description: >
+      A YorcServer capability allowing to bind to the Yorc REST API.
+    properties:
+      port:
+        type: integer
+        description: The port of the Yorc Server REST API endpoint.
+        required: true
+        default: 8800
+        constraints:
+          - in_range: [ 1, 65535 ]
+      protocol:
+        type: string
+        required: true
+        default: http
+        constraints:
+          - valid_values: ["http", "https"]
+  org.ystia.yorc.pub.capabilities.YorcConfigContainer:
+    derived_from: tosca.capabilities.Container
+
+relationship_types:
+  org.ystia.yorc.pub.relationships.JoinConsulAgent:
+    derived_from: org.ystia.yorc.experimental.consul.pub.relationships.JoinConsulAgent
+  org.ystia.yorc.pub.relationships.YorcConfigHostedOnYorc:
+    derived_from: tosca.relationships.HostedOn
+  org.ystia.yorc.pub.relationships.DependsOnFilessystem:
+    derived_from: tosca.relationships.DependsOn
+    description: >
+      Connects Yorc to a FileSystem (BlockStorage, NFS...)
+    valid_target_types: [ alien.nodes.LinuxFileSystem ]
+  org.ystia.yorc.pub.relationships.ConnectsToVaultServer:
+    derived_from: tosca.relationships.ConnectsTo
+    description: >
+      Connects to a Vault Server
+    valid_target_types: [ org.alien4cloud.vault.pub.capabilities.VaultServer ]
+  org.ystia.yorc.pub.relationships.SaveSecretsToVault:
+    derived_from: tosca.relationships.HostedOn
+    description: >
+      Saves secrets to a Vault Server
+    valid_target_types: [ org.alien4cloud.vault.pub.capabilities.VaultServer ]
