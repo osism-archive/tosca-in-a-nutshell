@@ -1,0 +1,97 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: HeimdallVm
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: "This archive has been created with alien4cloud."
+
+imports:
+  - yorc-types:1.1.0
+  - org.tibeer.docker.ansible:3.0.0-SNAPSHOT
+  - yorc-openstack-types:3.0.0
+  - tosca-normative-types:1.0.0-ALIEN20
+  - docker-types:3.0.0
+  - alien-base-types:3.0.0
+  - org.tibeer.docker.containers.docker.heimdall:3.0.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    Compute:
+      metadata:
+        a4c_edit_x: 52
+        a4c_edit_y: 2
+      type: yorc.nodes.openstack.Compute
+      properties:
+        imageName: "Ubuntu 20.04"
+        #boot_volume: 
+        #  delete_on_termination: true
+        #  source: ""
+        flavorName: "2C-2GB-10GB"
+        availability_zone: "south-2"
+        region: "betacloud-1"
+        key_pair: yorc
+        security_groups: "beermann-all"
+      requirements:
+        - networkPublicNetworkConnection:
+            type_requirement: network
+            node: PublicNetwork
+            capability: tosca.capabilities.Connectivity
+            relationship: tosca.relationships.Network
+      capabilities:
+        endpoint:
+          properties:
+            credentials: 
+              user: ubuntu
+              token_type: "password"
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    PublicNetwork:
+      metadata:
+        a4c_edit_x: 190
+        a4c_edit_y: "-21"
+      type: yorc.nodes.openstack.PublicNetwork
+      properties:
+        ip_version: 4
+    Docker:
+      type: org.tibeer.docker.ansible.nodes.Docker
+      properties:
+        docker_version: ""
+      requirements:
+        - hostedOnComputeHost:
+            type_requirement: host
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    Heimdall:
+      type: org.tibeer.docker.containers.docker.heimdall.nodes.Heimdall
+      properties:
+        image: "linuxserver/heimdall:latest"
+        restart_policy: always
+        published_ports: 
+          - "8080:80"
+        cpu_share: 1.0
+        mem_share: "128 MB"
+        docker_bash_cmd: 
+          - "/bin/bash"
+          - "-c"
+      requirements:
+        - hostedOnContainerRuntimeDockerHost:
+            type_requirement: host
+            node: Docker
+            capability: org.alien4cloud.extended.container.capabilities.ApplicationHost
+            relationship: org.alien4cloud.extended.container.relationships.HostedOnContainerRuntime
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1

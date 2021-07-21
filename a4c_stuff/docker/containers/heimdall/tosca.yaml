@@ -1,0 +1,81 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.tibeer.docker.containers.docker.heimdall
+  template_version: 3.0.0-SNAPSHOT
+  template_author: tibeer
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - yorc-types:1.1.0
+  - docker-types:3.0.0
+
+repositories:
+  docker:
+    url: https://hub.docker.com/
+    type: http
+
+node_types:
+  org.tibeer.docker.containers.docker.heimdall.nodes.Heimdall:
+    derived_from: tosca.nodes.Container.Application.DockerContainer
+    metadata:
+      icon: /icons/icon.png
+    properties:
+      image:
+        type: string
+        description: >
+          Repository path and tag used to create the container. If an image is not found,
+          the image will be pulled from the registry. If no tag is included, 'latest' will be used.
+        required: true
+        default: "linuxserver/heimdall:latest"
+      restart_policy:
+        type: string
+        constraints:
+          - valid_values: ["no", "on-failure", "always", "unless-stopped"]
+        default: "always"
+      published_ports:
+        type: list
+        entry_schema:
+          type: string
+        description: |
+          List of ports to publish from the container to the host.
+          Use docker CLI syntax: 8000, 9000:8000, or 0.0.0.0:9000:8000, where 8000 is a container port, 9000 is a host port, and 0.0.0.0 is a host interface.
+          Container ports must be exposed either in the Dockerfile or via the expose option.
+          A value of all will publish all exposed container ports to random host ports, ignoring any other mappings.
+        required: false
+        default:
+          - "8080:80"
+    interfaces:
+      Standard:
+        inputs:
+          # Will be empty for create operation but not a big deal
+          CONTAINER_ID: { get_attribute: [SELF, container_id] }
+          ENV_VARS: { get_property: [SELF, docker_env_vars] }
+          IMAGE: { get_property: [SELF, image] }
+          PUBLISHED_PORTS: { get_property: [SELF, published_ports] }
+          RESTART_POLICY: { get_property: [SELF, restart_policy] }
+        create:
+          implementation: playbooks/create.yaml
+        start:
+          implementation: playbooks/start.yaml
+        stop:
+          implementation: playbooks/stop.yaml
+        delete:
+          implementation: playbooks/delete.yaml
+        #create:
+        #  implementation:
+        #    file: linuxserver/heimdall
+        #    repository: docker
+        #    type: tosca.artifacts.Deployment.Image.Container.Docker
+
+capability_types:
+  org.tibeer.docker.containers.docker.heimdall.capabilities.Heimdall:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      docker_bridge_port_mapping:
+        type: integer
+        description: Port used to bridge to the container's endpoint.
+        default: 0
+      port:
+        type: integer
+        default: 80

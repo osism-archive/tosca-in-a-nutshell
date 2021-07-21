@@ -1,0 +1,11 @@
+
+---
+- name: Start Docker
+  hosts: all
+  become: true
+  tasks:
+    - name: Enable docker service
+      service: 
+        name: docker
+        daemon_reload: true
+        state: restarted
