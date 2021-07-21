@@ -1,5 +1,0 @@
-[Path]
-PathChanged=/etc/hosts
-
-[Install]
-WantedBy=multi-user.target

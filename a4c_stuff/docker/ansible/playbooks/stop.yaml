@@ -1,0 +1,9 @@
+---
+- name: Stop Docker
+  hosts: all
+  become: true
+  tasks:
+    - name: Stop docker service
+      service: 
+        name: docker
+        state: stopped
