@@ -7,23 +7,14 @@ metadata:
 
 description: "This archive has been created with alien4cloud."
 
-#imports:
-#  - yorc-types:1.1.0
-#  - org.tibeer.docker.ansible:3.0.0-SNAPSHOT
-#  - yorc-openstack-types:3.0.0
-#  - tosca-normative-types:1.0.0-ALIEN20
-#  - docker-types:3.0.0
-#  - alien-base-types:3.0.0
-#  - org.tibeer.docker.containers.docker.heimdall:3.0.0-SNAPSHOT
 imports:
-  - yorctypes: https://raw.githubusercontent.com/ystia/yorc/v4.1.2/data/tosca/yorc-types.yml
-  - orgtibeerdockeransible: https://raw.githubusercontent.com/osism/tosca-in-a-nutshell/main/a4c_stuff/docker/ansible/types.yml
-  - yorcopenstacktypes: https://raw.githubusercontent.com/ystia/yorc/v3.0.0/data/tosca/yorc-openstack-types.yml
-  - toscanormativetypes: https://raw.githubusercontent.com/ystia/yorc/v3.0.0/data/tosca/normative-types.yml
-  - dockertypes: https://raw.githubusercontent.com/alien4cloud/docker-tosca-types/master/docker-types/docker-types.yml
-  - alienbasetypes: https://raw.githubusercontent.com/alien4cloud/alien4cloud-extended-types/master/alien-base-types/alien-base-types.yml
-  - orgtibeerdockercontainersdockergeneric: https://github.com/osism/tosca-in-a-nutshell/blob/main/a4c_stuff/docker/containers/generic/types.yml
-  - orgtibeerdockercontainersdockerheimdall: https://github.com/osism/tosca-in-a-nutshell/blob/main/a4c_stuff/docker/containers/heimdall/tosca.yaml
+  - yorc-types:1.1.0
+  - org.tibeer.docker.ansible:3.0.0-SNAPSHOT
+  - yorc-openstack-types:3.0.0
+  - tosca-normative-types:1.0.0-ALIEN20
+  - docker-types:3.0.0
+  - alien-base-types:3.0.0
+  - org.tibeer.docker.containers.docker.heimdall:3.0.0-SNAPSHOT
 
 topology_template:
   node_templates:

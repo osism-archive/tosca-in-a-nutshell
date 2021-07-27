@@ -21,6 +21,17 @@ And given the endresult, this was kind of worth the hustle with setting it up.
 | s.sh        | connect to your yorc controller deployed by terraform |
 
 
+### Folder structure explained
+
+| Folder/File | Explanation                                           |
+|-------------|-------------------------------------------------------|
+| a4c_stuff   | Self-written TOSCA resources used for PoCs            |
+| ansible     | Legacy. NOT used any more, still here to track it     |
+| terraform   | resources to deploy a yorc controller VM in OpenStack |
+| yorcconf    | how bootstrap files should look like                  |
+| s.sh        | connect to your yorc controller deployed by terraform |
+
+
 ### How to yorc
 
 You need a Linux VM. Do not try Windows or mac.
