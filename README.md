@@ -5,6 +5,10 @@ In more detail, you'll find here a TOSCA definition to deploy a VM in OpenStack.
 
 THIS IS STILL UNDER HEAVY DEVELOPMENT!
 
+## yorc + alien4cloud
+
+This was the most promising realization of the TOSCA concept.
+And given the endresult, this was kind of worth the hustle with setting it up.
 
 ### Folder structure explained
 
@@ -186,7 +190,11 @@ As we required a simple PoC we decided to create our own docker installation and
   - Repository URL: https://github.com/osism/tosca-in-a-nutshell.git
   - Credentials: None
   - On Branch or Tag: main
-  - Archives: a4c_stuff/docker
+  - Archives to import: 
+    ```
+    a4c_stuff/docker
+    a4c_stuff/heimdallvm (contains an example topology for a heimdall docker container on a vm)
+    ```
 
 ***How to create an application***
 
@@ -196,3 +204,11 @@ Select a *Compute* node (OpenStack, AWS). Drag our docker resource onto the comp
 You can easily identify our PoC resources by the icons which only contain text. And yet again drag
 the *heimdall* resource onto the docker resource. You need to specify some settings for the compute resource.
 After that, you should be ready to deploy.
+Switch back to your application view and go to your deployments, and follow the wizzard-like guide (select your location, etc.). After that you should see a deploy button, which you might use now.
+After some time your application should become available. Congratulations! 
+
+## IM
+
+Another realization of the TOSCA concept is done via GRyCAP's Infrastructure Manager (IM).
+This was way trickier as you need to provide your TOSCA file completely handwritten with imports based on githubusercontent raw files.
+We have not managed to get this working (yet!).
