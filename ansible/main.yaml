@@ -13,7 +13,6 @@
         update_cache: true
         name:
           - docker.io
-          - docker-compose
 
     - name: add ansible user to docker group
       become: true
