@@ -5,11 +5,11 @@
   become: true
   tasks:
     - name: create docker.service.d directory
-      file:
+      ansible.builtin.file:
         path: /etc/systemd/system/docker.service.d
         state: directory
 
     - name: Generate http-proxy.conf file
-      template:
+      ansible.builtin.template:
         src: "http-proxy.conf.j2"
         dest: /etc/systemd/system/docker.service.d/http-proxy.conf

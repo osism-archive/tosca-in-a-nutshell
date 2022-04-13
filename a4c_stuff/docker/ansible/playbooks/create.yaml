@@ -5,7 +5,7 @@
 
   become: true
   tasks:
-    - set_fact:
+    - ansible.builtin.set_fact:
         # The baseurl of the RedHat/CentOS docker repository.
         redhat_docker_repository: "{{ REPOSITORY_URL  if (REPOSITORY_URL != '') else ('https://download.docker.com/linux/centos/7/$basearch/stable') }}"
         redhat_docker_gpgkey: "{{ DOCKER_GPGKEY if (DOCKER_GPGKEY != '') else ('https://download.docker.com/linux/centos/gpg') }}"
@@ -15,7 +15,7 @@
         docker_package_name:  "docker-ce{{ '-'  if (DOCKER_VERSION != '') else ('') }}{{ DOCKER_VERSION if (DOCKER_VERSION != '') else ('') }}"
 
     - name: Add Docker Yum repository
-      yum_repository:
+      ansible.builtin.yum_repository:
         name: docker
         description: Docker repository
         baseurl: "{{redhat_docker_repository}}"
@@ -24,30 +24,30 @@
       when: ansible_os_family == 'RedHat'
 
     - name: Add Docker Apt key.
-      apt_key:
+      ansible.builtin.apt_key:
         url: "{{debian_docker_gpgkey}}"
         state: present
       when: ansible_os_family == 'Debian'
 
     - name: Add Docker Apt repository
-      apt_repository:
+      ansible.builtin.apt_repository:
         repo: "{{debian_docker_repository}}"
         state: present
       when: ansible_os_family == 'Debian'
 
     - name: Ensure the APT package cache is updated
-      apt:
+      ansible.builtin.apt:
         update_cache: yes
         name: apt-transport-https
         cache_valid_time: 0
       when: ansible_os_family == 'Debian'
 
     - name: Ensure Docker is installed
-      package:
+      ansible.builtin.package:
         name: "{{ docker_package_name }}"
         state: present
 
     - name: Enable docker service
-      service:
+      ansible.builtin.service:
         name: docker
         enabled: yes

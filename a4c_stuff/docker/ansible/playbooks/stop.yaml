@@ -4,6 +4,6 @@
   become: true
   tasks:
     - name: Stop docker service
-      service: 
+      ansible.builtin.service: 
         name: docker
         state: stopped
