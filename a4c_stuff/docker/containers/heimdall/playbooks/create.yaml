@@ -4,20 +4,20 @@
   become: true
   tasks:
     - name: Get python version
-      python_requirements_info:
+      community.general.python_requirements_info:
       register: pri
       failed_when: pri == None or pri.python_version == None or pri.python_version == ''
     - name: Get python major version
-      set_fact:
+      ansible.builtin.set_fact:
         python_major_version: "{{pri.python_version | replace('\n', '') | regex_replace('^(\\d+).*', '\\1') }}"
     - name: Install pip version compatible with python 2
-      easy_install:
+      community.general.easy_install:
         name: pip<21.0
       when: python_major_version == "2"
     - name: Install pip
       #easy_install:
       #  name: pip
-      package:
+      ansible.builtin.package:
         name:
           - python3-pip
           - python3-docker
@@ -35,8 +35,8 @@
     DOCKER_VOLUMES: []
     DOCKER_STATE: "present"
   tasks:
-    - import_tasks: docker_container_tasks.yaml
+    - ansible.builtin.import_tasks: docker_container_tasks.yaml
 
     - name: Store container id
-      set_fact:
+      ansible.builtin.set_fact:
         CONTAINER_ID: "{{docker_res.ansible_facts.docker_container['Id']}}"
