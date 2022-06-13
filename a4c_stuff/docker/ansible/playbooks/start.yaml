@@ -3,6 +3,7 @@
 - name: Start Docker
   hosts: all
   become: true
+
   tasks:
     - name: Enable docker service
       ansible.builtin.service: 

@@ -1,8 +1,9 @@
 ---
 - name: Configure docker proxy
   hosts: all
-  strategy: linear
   become: true
+  strategy: linear
+  
   tasks:
     - name: create docker.service.d directory
       ansible.builtin.file:
