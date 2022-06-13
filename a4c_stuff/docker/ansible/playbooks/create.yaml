@@ -1,9 +1,8 @@
 ---
 - name: Install Docker
   hosts: all
-  vars:
-
   become: true
+  
   tasks:
     - ansible.builtin.set_fact:
         # The baseurl of the RedHat/CentOS docker repository.

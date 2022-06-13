@@ -2,6 +2,7 @@
 - name: Stop Docker
   hosts: all
   become: true
+
   tasks:
     - name: Stop docker service
       ansible.builtin.service: 
