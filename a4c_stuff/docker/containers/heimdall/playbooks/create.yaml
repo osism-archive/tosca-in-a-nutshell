@@ -19,13 +19,13 @@
       when: python_major_version == "2"
 
     - name: Install pip
-      #easy_install:
-      #  name: pip
+      # easy_install:
+      #   name: pip
       ansible.builtin.package:
         name:
           - python3-pip
           - python3-docker
-        state: latest  
+        state: latest
       when: python_major_version != "2"
 
 - name: Create Docker Container

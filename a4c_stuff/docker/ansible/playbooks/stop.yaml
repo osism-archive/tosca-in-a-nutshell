@@ -5,6 +5,6 @@
 
   tasks:
     - name: Stop docker service
-      ansible.builtin.service: 
+      ansible.builtin.service:
         name: docker
         state: stopped

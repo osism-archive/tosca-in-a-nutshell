@@ -12,9 +12,9 @@
     DOCKER_STATE: "started"
 
   tasks:
-  - ansible.builtin.import_tasks: docker_container_tasks.yaml
+    - ansible.builtin.import_tasks: docker_container_tasks.yaml
 
-  - name: Get container output
-    ansible.builtin.debug:
-      msg: "{{ docker_res.ansible_facts.docker_container.Output }}"
-    when: not DETACH|bool
+    - name: Get container output
+      ansible.builtin.debug:
+        msg: "{{ docker_res.ansible_facts.docker_container.Output }}"
+      when: not DETACH|bool
