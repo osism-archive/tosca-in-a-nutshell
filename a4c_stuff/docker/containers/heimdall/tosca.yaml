@@ -1,3 +1,4 @@
+---
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
@@ -49,11 +50,11 @@ node_types:
       Standard:
         inputs:
           # Will be empty for create operation but not a big deal
-          CONTAINER_ID: { get_attribute: [SELF, container_id] }
-          ENV_VARS: { get_property: [SELF, docker_env_vars] }
-          IMAGE: { get_property: [SELF, image] }
-          PUBLISHED_PORTS: { get_property: [SELF, published_ports] }
-          RESTART_POLICY: { get_property: [SELF, restart_policy] }
+          CONTAINER_ID: {get_attribute: [SELF, container_id]}
+          ENV_VARS: {get_property: [SELF, docker_env_vars]}
+          IMAGE: {get_property: [SELF, image]}
+          PUBLISHED_PORTS: {get_property: [SELF, published_ports]}
+          RESTART_POLICY: {get_property: [SELF, restart_policy]}
         create:
           implementation: playbooks/create.yaml
         start:
@@ -62,11 +63,11 @@ node_types:
           implementation: playbooks/stop.yaml
         delete:
           implementation: playbooks/delete.yaml
-        #create:
-        #  implementation:
-        #    file: linuxserver/heimdall
-        #    repository: docker
-        #    type: tosca.artifacts.Deployment.Image.Container.Docker
+        # create:
+        #   implementation:
+        #     file: linuxserver/heimdall
+        #     repository: docker
+        #     type: tosca.artifacts.Deployment.Image.Container.Docker
 
 capability_types:
   org.tibeer.docker.containers.docker.heimdall.capabilities.Heimdall:

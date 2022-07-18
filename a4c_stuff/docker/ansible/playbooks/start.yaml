@@ -1,4 +1,3 @@
-
 ---
 - name: Start Docker
   hosts: all
@@ -6,7 +5,7 @@
 
   tasks:
     - name: Enable docker service
-      ansible.builtin.service: 
+      ansible.builtin.service:
         name: docker
         daemon_reload: true
         state: restarted

@@ -12,4 +12,4 @@
     DOCKER_STATE: "started"
 
   tasks:
-  - ansible.builtin.import_tasks: docker_container_tasks.yaml
+    - ansible.builtin.import_tasks: docker_container_tasks.yaml

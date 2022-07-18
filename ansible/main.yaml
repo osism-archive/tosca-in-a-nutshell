@@ -1,3 +1,4 @@
+---
 - name: prepare yorc host
   hosts: yorc
 

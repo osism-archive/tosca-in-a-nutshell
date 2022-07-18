@@ -7,7 +7,7 @@
     ansible_python_interpreter: "/usr/bin/python3"
 
   tasks:
-  - name: delete docker container
-    community.docker.docker_container: 
-      name: "{{CONTAINER_ID}}"
-      state: absent
+    - name: delete docker container
+      community.docker.docker_container:
+        name: "{{CONTAINER_ID}}"
+        state: absent

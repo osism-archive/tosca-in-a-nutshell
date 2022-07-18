@@ -10,18 +10,18 @@
     DOCKER_EXP_PORTS: "{{EXPOSED_PORTS}}"
   when: EXPOSED_PORTS | length > 0
 
-- name: setup docker published ports 
+- name: setup docker published ports
   ansible.builtin.set_fact:
     DOCKER_PUB_PORT: "{{PUBLISHED_PORTS}}"
   when: PUBLISHED_PORTS | length > 0
 
-- name: setup docker volumes 
+- name: setup docker volumes
   ansible.builtin.set_fact:
     DOCKER_VOLUMES: "{{VOLUMES}}"
   when: VOLUMES | length > 0
 
 - name: Docker container
-  community.docker.docker_container: 
+  community.docker.docker_container:
     name: "{{NODE}}-{{INSTANCE}}"
     auto_remove: "{{AUTO_REMOVE}}"
     cleanup: "{{CLEANUP}}"
